@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sanai Exact Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top right,#1d4ed820,transparent 30%),
+    radial-gradient(circle at bottom left,#00c85320,transparent 30%),
+    #090909;
+  color:#f5f5f5;
+  font-family:'Inter',sans-serif;
+  display:flex;
+  justify-content:center;
+  padding:30px 16px;
+}
+
+.container{
+  width:100%;
+  max-width:950px;
+}
+
+.card{
+  background:rgba(18,18,18,.92);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:24px;
+  padding:28px;
+  box-shadow:0 10px 40px rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
+}
+
+h1{
+  margin:0;
+  font-size:32px;
+  font-weight:700;
+}
+
+.subtitle{
+  margin-top:10px;
+  color:#9ca3af;
+  line-height:1.7;
+}
+
+.section-title{
+  margin:30px 0 14px;
+  font-size:15px;
+  font-weight:600;
+  color:#d1d5db;
+  letter-spacing:.3px;
+}
+
+.input-group{
+  margin-bottom:16px;
+}
+
+label{
+  display:block;
+  margin-bottom:8px;
+  color:#cfcfcf;
+  font-size:14px;
+  font-weight:500;
+}
+
+input, textarea{
+  width:100%;
+  border:none;
+  outline:none;
+  border-radius:16px;
+  background:#151515;
+  color:#fff;
+  padding:14px 16px;
+  font-size:14px;
+  border:1px solid rgba(255,255,255,.06);
+  transition:.2s ease;
+}
+
+textarea{
+  resize:vertical;
+  min-height:110px;
+}
+
+input:focus,
+textarea:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 4px rgba(37,99,235,.18);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.buttons{
+  display:flex;
+  gap:14px;
+  margin-top:20px;
+  flex-wrap:wrap;
+}
+
+button{
+  flex:1;
+  min-width:180px;
+  border:none;
+  border-radius:16px;
+  padding:15px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.25s ease;
+}
+
+.convert-btn{
+  background:linear-gradient(135deg,#00c853,#00e676);
+  color:#fff;
+  box-shadow:0 10px 25px rgba(0,200,83,.25);
+}
+
+.copy-btn{
+  background:linear-gradient(135deg,#2563eb,#3b82f6);
+  color:#fff;
+  box-shadow:0 10px 25px rgba(37,99,235,.25);
+}
+
+button:hover{
+  transform:translateY(-2px);
+  opacity:.96;
+}
+
+.output{
+  margin-top:28px;
+}
+
+pre{
+  margin:0;
+  background:#101010;
+  border-radius:20px;
+  padding:22px;
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.05);
+  color:#d1fae5;
+  line-height:1.7;
+  font-size:13px;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.footer{
+  margin-top:28px;
+  text-align:center;
+  color:#8b8b8b;
+  font-size:14px;
+}
+
+.footer a{
+  color:#00e676;
+  text-decoration:none;
+  font-weight:600;
+}
+
+.footer a:hover{
+  text-decoration:underline;
+}
+
+@media(max-width:760px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:22px;
+  }
+
+  h1{
+    font-size:26px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <h1>Sanai Exact Builder</h1>
+    <div class="subtitle">
+      Convert VLESS links into Sanai / 3x-ui JSON format with editable XHTTP extra settings.
+    </div>
+
+    <div class="section-title">VLESS Link</div>
+
+    <div class="input-group">
+      <label>Paste your vless:// link</label>
+      <textarea id="link" placeholder="vless://..."></textarea>
+    </div>
+
+    <div class="section-title">Editable XHTTP Settings</div>
+
+    <div class="grid">
+
+      <div class="input-group">
+        <label>x-host</label>
+        <input id="xhost" value="https://meshke.imissher.shop:8443">
+      </div>
+
+      <div class="input-group">
+        <label>xPaddingBytes</label>
+        <input id="xPaddingBytes" value="1-1">
+      </div>
+
+      <div class="input-group">
+        <label>xPaddingKey</label>
+        <input id="xPaddingKey" value="iran">
+      </div>
+
+      <div class="input-group">
+        <label>xPaddingHeader</label>
+        <input id="xPaddingHeader" value="iran">
+      </div>
+
+      <div class="input-group">
+        <label>scMaxEachPostBytes</label>
+        <input id="scMaxEachPostBytes" value="1000000">
+      </div>
+
+      <div class="input-group">
+        <label>Mode</label>
+        <input id="mode" value="auto">
+      </div>
+
+    </div>
+
+    <div class="buttons">
+      <button class="convert-btn" onclick="convert()">Convert to JSON</button>
+      <button class="copy-btn" onclick="copyOut()">Copy Output</button>
+    </div>
+
+    <div class="output">
+      <pre id="out">Your generated JSON will appear here...</pre>
+    </div>
+
+    <div class="footer">
+      Telegram: <a href="https://t.me/HAD_l" target="_blank">@HAD_l</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+function parseExtra(str){
+  if(!str) return {};
+
+  try{
+    return JSON.parse(decodeURIComponent(str));
+  }catch(e){
+    return {};
+  }
+}
+
+function fallbackXmux(extra){
+  return extra.xmux || {
+    maxConcurrency: "16-32",
+    hMaxRequestTimes: "600-900",
+    hMaxReusableSecs: "1800-3000"
+  };
+}
+
+function convert(){
+
+  try{
+
+    let raw = document.getElementById("link").value.trim();
+
+    if(!raw.startsWith("vless://")){
+      alert("Invalid VLESS link");
+      return;
+    }
+
+    raw = raw.replace("vless://", "");
+
+    let [userHost, query] = raw.split("?");
+
+    let [user, hostPort] = userHost.split("@");
+
+    let [host, port] = hostPort.split(":");
+
+    let params = new URLSearchParams(query);
+
+    let extra = parseExtra(params.get("extra"));
+
+    let sni = params.get("sni");
+
+    let xhost = document.getElementById("xhost").value.trim();
+    let xPaddingBytes = document.getElementById("xPaddingBytes").value.trim();
+    let xPaddingKey = document.getElementById("xPaddingKey").value.trim();
+    let xPaddingHeader = document.getElementById("xPaddingHeader").value.trim();
+    let scMaxEachPostBytes = document.getElementById("scMaxEachPostBytes").value.trim();
+    let mode = document.getElementById("mode").value.trim();
+
+    let json = {
+      protocol: "vless",
+
+      settings: {
+        address: host,
+        port: Number(port),
+        id: decodeURIComponent(user),
+        flow: "",
+        encryption: "none"
+      },
+
+      tag: "3xui",
+
+      streamSettings: {
+        network: "xhttp",
+        security: "tls",
+
+        tlsSettings: {
+          serverName: sni,
+          allowInsecure: true,
+          alpn: (params.get("alpn") || "h2,http/1.1").split(","),
+          fingerprint: params.get("fp") || "chrome"
+        },
+
+        xhttpSettings: {
+          path: params.get("path"),
+          host: params.get("host"),
+          mode: mode || params.get("mode") || "auto",
+
+          xPaddingBytes: xPaddingBytes || extra.xPaddingBytes || "1-1",
+          xPaddingObfsMode: extra.xPaddingObfsMode ?? true,
+          xPaddingKey: xPaddingKey || extra.xPaddingKey || "iran",
+          xPaddingHeader: xPaddingHeader || extra.xPaddingHeader || "iran",
+
+          scMaxEachPostBytes: Number(
+            scMaxEachPostBytes ||
+            extra.scMaxEachPostBytes ||
+            1000000
+          ),
+
+          headers: {
+            "x-host": xhost ||
+              extra?.headers?.["x-host"] ||
