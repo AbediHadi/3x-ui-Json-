@@ -265,6 +265,7 @@ function parseExtra(str){
   try{
     return JSON.parse(decodeURIComponent(str));
   }catch(e){
+    console.error(e);
     return {};
   }
 }
@@ -277,44 +278,84 @@ function fallbackXmux(extra){
   };
 }
 
+function safeNumber(value, fallback){
+  const num = Number(value);
+  return isNaN(num) ? fallback : num;
+}
+
 function convert(){
+
+  const output = document.getElementById("out");
 
   try{
 
     let raw = document.getElementById("link").value.trim();
 
-    if(!raw.startsWith("vless://")){
-      alert("Invalid VLESS link");
+    if(!raw){
+      output.textContent = "Paste a VLESS link first.";
       return;
     }
 
-    raw = raw.replace("vless://", "");
+    const hashIndex = raw.indexOf("#");
 
-    let [userHost, query] = raw.split("?");
+    if(hashIndex !== -1){
+      raw = raw.substring(0, hashIndex);
+    }
 
-    let [user, hostPort] = userHost.split("@");
+    if(!raw.startsWith("vless://")){
+      output.textContent = "Invalid VLESS link.";
+      return;
+    }
 
-    let [host, port] = hostPort.split(":");
+    const urlPart = raw.replace("vless://", "");
 
-    let params = new URLSearchParams(query);
+    const queryIndex = urlPart.indexOf("?");
 
-    let extra = parseExtra(params.get("extra"));
+    if(queryIndex === -1){
+      output.textContent = "Invalid VLESS query string.";
+      return;
+    }
 
-    let sni = params.get("sni");
+    const userHost = urlPart.substring(0, queryIndex);
+    const query = urlPart.substring(queryIndex + 1);
 
-    let xhost = document.getElementById("xhost").value.trim();
-    let xPaddingBytes = document.getElementById("xPaddingBytes").value.trim();
-    let xPaddingKey = document.getElementById("xPaddingKey").value.trim();
-    let xPaddingHeader = document.getElementById("xPaddingHeader").value.trim();
-    let scMaxEachPostBytes = document.getElementById("scMaxEachPostBytes").value.trim();
-    let mode = document.getElementById("mode").value.trim();
+    const atIndex = userHost.indexOf("@");
 
-    let json = {
+    if(atIndex === -1){
+      output.textContent = "Invalid VLESS credentials.";
+      return;
+    }
+
+    const user = userHost.substring(0, atIndex);
+    const hostPort = userHost.substring(atIndex + 1);
+
+    const lastColon = hostPort.lastIndexOf(":");
+
+    if(lastColon === -1){
+      output.textContent = "Invalid host or port.";
+      return;
+    }
+
+    const host = hostPort.substring(0, lastColon);
+    const port = hostPort.substring(lastColon + 1);
+
+    const params = new URLSearchParams(query);
+
+    const extra = parseExtra(params.get("extra"));
+
+    const xhost = document.getElementById("xhost").value.trim();
+    const xPaddingBytes = document.getElementById("xPaddingBytes").value.trim();
+    const xPaddingKey = document.getElementById("xPaddingKey").value.trim();
+    const xPaddingHeader = document.getElementById("xPaddingHeader").value.trim();
+    const scMaxEachPostBytes = document.getElementById("scMaxEachPostBytes").value.trim();
+    const mode = document.getElementById("mode").value.trim();
+
+    const json = {
       protocol: "vless",
 
       settings: {
         address: host,
-        port: Number(port),
+        port: safeNumber(port, 443),
         id: decodeURIComponent(user),
         flow: "",
         encryption: "none"
@@ -327,28 +368,93 @@ function convert(){
         security: "tls",
 
         tlsSettings: {
-          serverName: sni,
+          serverName: params.get("sni") || host,
           allowInsecure: true,
-          alpn: (params.get("alpn") || "h2,http/1.1").split(","),
+          alpn: (params.get("alpn") || "h2,http/1.1")
+            .split(",")
+            .map(v => v.trim()),
           fingerprint: params.get("fp") || "chrome"
         },
 
         xhttpSettings: {
-          path: params.get("path"),
-          host: params.get("host"),
+          path: params.get("path") || "/",
+          host: params.get("host") || "",
           mode: mode || params.get("mode") || "auto",
 
-          xPaddingBytes: xPaddingBytes || extra.xPaddingBytes || "1-1",
-          xPaddingObfsMode: extra.xPaddingObfsMode ?? true,
-          xPaddingKey: xPaddingKey || extra.xPaddingKey || "iran",
-          xPaddingHeader: xPaddingHeader || extra.xPaddingHeader || "iran",
+          xPaddingBytes:
+            xPaddingBytes ||
+            extra.xPaddingBytes ||
+            "1-1",
 
-          scMaxEachPostBytes: Number(
-            scMaxEachPostBytes ||
-            extra.scMaxEachPostBytes ||
-            1000000
-          ),
+          xPaddingObfsMode:
+            extra.xPaddingObfsMode ?? true,
+
+          xPaddingKey:
+            xPaddingKey ||
+            extra.xPaddingKey ||
+            "iran",
+
+          xPaddingHeader:
+            xPaddingHeader ||
+            extra.xPaddingHeader ||
+            "iran",
+
+          scMaxEachPostBytes:
+            safeNumber(
+              scMaxEachPostBytes || extra.scMaxEachPostBytes,
+              1000000
+            ),
 
           headers: {
-            "x-host": xhost ||
+            "x-host":
+              xhost ||
               extra?.headers?.["x-host"] ||
+              "https://meshke.imissher.shop:8443"
+          },
+
+          xmux: fallbackXmux(extra)
+        }
+      }
+    };
+
+    output.textContent = JSON.stringify(json, null, 2);
+
+  }catch(err){
+    console.error(err);
+    output.textContent = "Conversion error: " + err.message;
+  }
+}
+
+function copyOut(){
+
+  const text = document.getElementById("out").textContent;
+
+  if(!text || text.includes("appear here")){
+    return;
+  }
+
+  navigator.clipboard.writeText(text)
+    .then(() => {
+
+      const btn = document.querySelector('.copy-btn');
+      const original = btn.innerText;
+
+      btn.innerText = 'Copied ✓';
+
+      setTimeout(() => {
+        btn.innerText = original;
+      }, 1500);
+
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
+
+window.convert = convert;
+window.copyOut = copyOut;
+
+</script>
+
+</body>
+</html>
